@@ -1,26 +1,27 @@
-import json
-
 from flask import Flask, request, jsonify
-from sql_connection import get_Sql_connection
-import products_dao
-import quantity_doa
+from sql_connection import get_sql_connection
+import mysql.connector
 import json
 
-connection = get_Sql_connection()
+import products_dao
+import orders_doa
+import uom_doa
+
 app = Flask(__name__)
 
+connection = get_sql_connection()
 
-@app.route('/getProducts')
-def getProducts():
-    products = products_dao.get_all_products(connection)
-    response = jsonify(products)
+@app.route('/getUOM', methods=['GET'])
+def get_uom():
+    response = uom_doa.get_uoms(connection)
+    response = jsonify(response)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/getQuantityDetails', methods =['GET'])
-def getQuantityDetails():
-    product = quantity_doa.getQuantity(connection)
-    response = jsonify(product)
+@app.route('/getProducts', methods=['GET'])
+def get_products():
+    response = products_dao.get_all_products(connection)
+    response = jsonify(response)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -34,6 +35,32 @@ def insert_product():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@app.route('/getAllOrders', methods=['GET'])
+def get_all_orders():
+    response = orders_doa.get_all_orders(connection)
+    response = jsonify(response)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@app.route('/insertOrder', methods=['POST'])
+def insert_order():
+    request_payload = json.loads(request.form['data'])
+    order_id = orders_doa.insert_order(connection, request_payload)
+    response = jsonify({
+        'order_id': order_id
+    })
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@app.route('/deleteProduct', methods=['POST'])
+def delete_product():
+    return_id = products_dao.delete_product(connection, request.form['product_id'])
+    response = jsonify({
+        'product_id': return_id
+    })
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 if __name__ == "__main__":
-    print("Starting Python flask server for grocery store system")
-    app.run(port=80)
+    print("Starting Python Flask Server For Grocery Store Management System")
+    app.run(port=5000)
