@@ -1,4 +1,5 @@
 # Grocery-app
+ This app generally helps in calculating in and arround grocery expenses of a user and also tells about the total money earned by the dealer after selling the products.
 
 Url to get all products :- http://127.0.0.1:5000/getProducts
 
